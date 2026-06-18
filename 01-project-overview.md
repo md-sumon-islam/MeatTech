@@ -6,4 +6,4 @@ MeatTech is an innovative e-commerce and supply chain management platform design
 * Provide a seamless online platform for purchasing premium quality meat products.
 * Implement strict quality control measures and real-time tracking from farm to fork.
 * Empower local farmers by connecting them directly with a broader market.
-* Guarantee high standards of food safety and hygiene in processing and logistics.
+* Guarantee high standards of food safety and hygiene in processing and logistics..

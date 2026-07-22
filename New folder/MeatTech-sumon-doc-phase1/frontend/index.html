@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MeatTech Product Review System</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f6f9; padding: 20px; }
+    .container { max-width: 500px; background: white; padding: 25px; border-radius: 8px; margin: 20px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    input, select, textarea, button { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    button:hover { background-color: #218838; }
+    .review-card { border-bottom: 1px solid #eee; padding: 12px 0; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Product Review System</h2>
+    <form id="reviewForm">
+      <label><b>Product Name</b></label>
+      <input type="text" id="product_name" placeholder="e.g. Fresh Beef Cut" required>
+
+      <label style="display:block; margin-top: 10px;"><b>Rating</b></label>
+      <select id="rating">
+        <option value="5">5 Stars ★★★★★</option>
+        <option value="4">4 Stars ★★★★</option>
+        <option value="3">3 Stars ★★★</option>
+        <option value="2">2 Stars ★★</option>
+        <option value="1">1 Star ★</option>
+      </select>
+
+      <label style="display:block; margin-top: 10px;"><b>Comment</b></label>
+      <textarea id="comment" placeholder="Write your review..." required></textarea>
+
+      <button type="submit">Submit Review</button>
+    </form>
+
+    <hr style="margin: 25px 0;">
+    <h3>Submitted Reviews (Live DB Data)</h3>
+    <div id="reviewsList">Loading reviews...</div>
+  </div>
+
+  <script>
+    const API_URL = 'http://127.0.0.1:8000/api/reviews';
+
+    // 1. Fetch Existing Reviews from Backend (GET)
+    async function loadReviews() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        const listDiv = document.getElementById('reviewsList');
+        if (data.length === 0) {
+          listDiv.innerHTML = '<p style="color: #777;">No reviews submitted yet.</p>';
+          return;
+        }
+
+        listDiv.innerHTML = data.map(rev => `
+          <div class="review-card">
+            <strong>${rev.product_name}</strong> - <span style="color: #f39c12;">${'★'.repeat(rev.rating)}</span>
+            <p style="margin: 5px 0 0 0; color: #444;">${rev.comment}</p>
+          </div>
+        `).join('');
+      } catch (error) {
+        document.getElementById('reviewsList').innerHTML = '<p style="color: red;">Failed to connect to backend server.</p>';
+      }
+    }
+
+    // 2. Submit New Review to Backend (POST)
+    document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const payload = {
+        product_name: document.getElementById('product_name').value,
+        rating: parseInt(document.getElementById('rating').value),
+        comment: document.getElementById('comment').value
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          document.getElementById('reviewForm').reset();
+          loadReviews(); // Instant UI Refresh
+        } else {
+          alert('Failed to save review');
+        }
+      } catch (err) {
+        alert('Could not reach backend server!');
+      }
+    });
+
+    // Initial Load
+    loadReviews();
+  </script>
+</body>
+</html>
